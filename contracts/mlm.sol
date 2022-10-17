@@ -42,7 +42,7 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
         sharePercentage[Tier.LEVEL_EXPERT] = 6; // 6%
     }
 
-    function releaseShare() external {
+    function releaseShare() external nonReentrant {
         uint256 currentBalance = balanceOwner;
         balanceOwner = 0;
         if (investorAddress != address(0)) {
@@ -65,7 +65,7 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
         }
     }
 
-    function investment() external {
+    function investment() external nonReentrant {
         require(investorAddress == address(0), "Investment has been filled");
         address who = _msgSender();
         uint256 shareOwner1 = investmentAmount * percentageShareOwner / 100;
