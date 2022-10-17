@@ -1,0 +1,18 @@
+{
+  "name": "solidity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-contracts": "sol-merger \"./contracts/*.sol\" ./build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@openzeppelin/contracts": "^4.7.3",
+    "hardhat": "^2.12.0",
+    "sol-merger": "^4.1.1"
+  }
+}
