@@ -11,7 +11,7 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
 
     uint256 public constant investmentAmount = 80000e6; // 80,000 USDC
     uint256 public constant maxInvestmentProfit = 120000e6; // 120,000 USDC
-    uint256 private constant percentageShareOwner = 65; // 65%
+    uint256 private constant percentageShareOwner = 60; // 60%
     address[] private payeesOwner = [
         0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD, // Owner 1
         0x189E379482a066Ec681924b69CDF248494687c51 // Owner 2
@@ -28,6 +28,7 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
     mapping(uint256 => uint256) public lineTree;
 
     event PurchasePosition(address indexed who, uint256 indexed tokenId, Tier indexed tier, address uplineAddress, uint256 uplineTokenId);
+    event WithdrawProfit(address indexed who, uint256 indexed amount);
 
     constructor(address _addressUSDC) ERC721("MLM", "MLM") {
         tokenUSDC = IERC20(_addressUSDC);
@@ -36,10 +37,10 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
         priceTier[Tier.LEVEL_HARD] = 50e6; // 50 USDC
         priceTier[Tier.LEVEL_EXPERT] = 100e6; // 100 USDC
 
-        sharePercentage[Tier.LEVEL_LOW] = 1; // 1%
-        sharePercentage[Tier.LEVEL_MEDIUM] = 2; // 2%
-        sharePercentage[Tier.LEVEL_HARD] = 4; // 4%
-        sharePercentage[Tier.LEVEL_EXPERT] = 6; // 6%
+        sharePercentage[Tier.LEVEL_LOW] = 2; // 2%
+        sharePercentage[Tier.LEVEL_MEDIUM] = 4; // 4%
+        sharePercentage[Tier.LEVEL_HARD] = 6; // 6%
+        sharePercentage[Tier.LEVEL_EXPERT] = 8; // 8%
     }
 
     function releaseShare() external nonReentrant {
@@ -67,12 +68,11 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
 
     function investment() external nonReentrant {
         require(investorAddress == address(0), "Investment has been filled");
-        address who = _msgSender();
         uint256 shareOwner1 = investmentAmount * percentageShareOwner / 100;
         uint256 shareOwner2 = investmentAmount - shareOwner1;
         SafeERC20.safeTransfer(tokenUSDC, payeesOwner[0], shareOwner1);
         SafeERC20.safeTransfer(tokenUSDC, payeesOwner[1], shareOwner2);
-        investorAddress = who;
+        investorAddress = _msgSender();
         pendingClaimInvestor = maxInvestmentProfit;
     }
 
@@ -83,13 +83,13 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
 
         uint256 shareProfit = priceTier[_tier];
         uint256 currentTokenId = _uplineTokenId;
-        for (uint256 i = 0; i < 12; i++) {
+        for (uint256 i = 0; i < 10; i++) {
             uint256 profit = shareProfit * sharePercentage[tierOf[currentTokenId]] / 100;
             balance[ownerOf(currentTokenId)] += profit;
             shareProfit -= profit;
-            if (lineTree[currentTokenId] == 0) {
-                profit = profit * (12 - i);
-                balance[ownerOf(currentTokenId)] += profit;
+            if (i < 9 && lineTree[currentTokenId] == 0) {
+                profit = shareProfit * sharePercentage[tierOf[_uplineTokenId]] / 100 * (9 - i);
+                balance[ownerOf(_uplineTokenId)] += profit;
                 shareProfit -= profit;
                 break;
             } else {
@@ -115,8 +115,11 @@ contract mlm is ERC721Enumerable, ReentrancyGuard {
     }
 
     function withdraw(address _withdrawAddress) external nonReentrant {
-        require(_withdrawAddress != address(0) && balance[_withdrawAddress] > 0, "Withdraw cannot be processed");
-        SafeERC20.safeTransfer(tokenUSDC, _withdrawAddress, balance[_withdrawAddress]);
+        uint256 currentBalance = balance[_withdrawAddress];
+        require(_withdrawAddress != address(0) && currentBalance > 0, "Withdraw cannot be processed");
+        SafeERC20.safeTransfer(tokenUSDC, _withdrawAddress, currentBalance);
         balance[_withdrawAddress] = 0;
+
+        emit WithdrawProfit(_withdrawAddress, currentBalance);
     }
 }
