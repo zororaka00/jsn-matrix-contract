@@ -27,7 +27,6 @@ contract mlm1 is ERC721Enumerable, ReentrancyGuard {
     mapping(uint256 => uint256) public lineTree;
 
     event PurchasePosition(address indexed who, uint256 indexed tokenId, Tier indexed tier, address uplineAddress, uint256 uplineTokenId);
-    event WithdrawProfit(address indexed who, uint256 indexed amount);
 
     constructor(address _addressUSDC) ERC721("MLM", "MLM") {
         tokenUSDC = IERC20(_addressUSDC);
@@ -97,12 +96,12 @@ contract mlm1 is ERC721Enumerable, ReentrancyGuard {
         }
         
         balanceOwner += shareProfit;
+        tokenUSDC.transferFrom(_minter, address(this), shareProfit);
     }
 
     function mint(uint256 _uplineTokenId, Tier _tier) external nonReentrant {
         address minter = _msgSender();
         require(uint8(_tier) < 4, "Tier not available");
-        tokenUSDC.transferFrom(minter, address(this), priceTier[_tier]);
 
         uint256 tokenId = totalSupply() + 1;
         tierOf[tokenId] = _tier;
