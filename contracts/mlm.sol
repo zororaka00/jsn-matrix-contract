@@ -27,6 +27,7 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     mapping(uint256 => uint256) public lineTree;
 
     event PurchasePosition(address indexed who, uint256 indexed tokenId, Tier indexed tier, address uplineAddress, uint256 uplineTokenId);
+    event UpgradePosition(address indexed who, uint256 indexed tokenId, Tier indexed newTier, Tier previousTier);
 
     constructor(address _addressUSDC) ERC721("MLM", "MLM") {
         tokenUSDC = IERC20(_addressUSDC);
@@ -101,16 +102,27 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     function mint(uint256 _uplineTokenId, Tier _tier) external nonReentrant {
         uint256 supplyTokenId = totalSupply();
         address minter = _msgSender();
-        require(_uplineTokenId <= supplyTokenId, "Invalid TokenId");
         require(uint8(_tier) < 4, "Tier not available");
+        require(_uplineTokenId <= supplyTokenId, "Invalid TokenId");
 
         uint256 tokenId = supplyTokenId + 1;
-        tierOf[tokenId] = _tier;
-
         releaseUpline(minter, tokenId, _uplineTokenId, _tier);
         _mint(minter, tokenId);
+        tierOf[tokenId] = _tier;
         
         address uplineAddress = _uplineTokenId > 0 ? ownerOf(_uplineTokenId) : address(0);
         emit PurchasePosition(minter, tokenId, _tier, uplineAddress, _uplineTokenId);
+    }
+
+    function upgrade(uint256 _tokenId, Tier _newTier) external nonReentrant {
+        Tier previousTokenId = tierOf[_tokenId];
+        require(uint8(previousTokenId) < 3, "Tier not available");
+        require(uint8(_newTier) > uint8(previousTokenId), "New tier must be more than the previous tier");
+
+        address owner = ownerOf(_tokenId);
+        releaseUpline(owner, _tokenId, lineTree[_tokenId], _newTier);
+        tierOf[_tokenId] = _newTier;
+
+        emit UpgradePosition(owner, _tokenId, _newTier, previousTokenId);
     }
 }
