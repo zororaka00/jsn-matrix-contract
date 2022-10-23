@@ -75,23 +75,22 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     }
 
     function releaseUpline(address _minter, uint256 _tokenId, uint256 _uplineTokenId, Tier _tier) internal {
-        if (ownerOf(_uplineTokenId) != address(0)) {
-            lineTree[_tokenId] = _uplineTokenId;
-        }
-
         uint256 shareProfit = priceTier[_tier];
-        uint256 currentTokenId = _uplineTokenId;
-        for (uint256 i = 0; i < 10; i++) {
-            uint256 profit = shareProfit * sharePercentage[tierOf[currentTokenId]] / 100;
-            tokenUSDC.transferFrom(_minter, ownerOf(currentTokenId), profit);
-            shareProfit -= profit;
-            if (i < 9 && lineTree[currentTokenId] == 0) {
-                profit = shareProfit * sharePercentage[tierOf[_uplineTokenId]] / 100 * (9 - i);
-                tokenUSDC.transferFrom(_minter, ownerOf(_uplineTokenId), profit);
+        if (_uplineTokenId > 0) {
+            lineTree[_tokenId] = _uplineTokenId;
+            uint256 currentTokenId = _uplineTokenId;
+            for (uint256 i = 0; i < 10; i++) {
+                uint256 profit = shareProfit * sharePercentage[tierOf[currentTokenId]] / 100;
+                tokenUSDC.transferFrom(_minter, ownerOf(currentTokenId), profit);
                 shareProfit -= profit;
-                break;
-            } else {
-                currentTokenId = lineTree[currentTokenId];
+                if (i < 9 && lineTree[currentTokenId] == 0) {
+                    profit = shareProfit * sharePercentage[tierOf[_uplineTokenId]] / 100 * (9 - i);
+                    tokenUSDC.transferFrom(_minter, ownerOf(_uplineTokenId), profit);
+                    shareProfit -= profit;
+                    break;
+                } else {
+                    currentTokenId = lineTree[currentTokenId];
+                }
             }
         }
         
@@ -100,15 +99,18 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     }
 
     function mint(uint256 _uplineTokenId, Tier _tier) external nonReentrant {
+        uint256 supplyTokenId = totalSupply();
         address minter = _msgSender();
+        require(_uplineTokenId <= supplyTokenId, "Invalid TokenId");
         require(uint8(_tier) < 4, "Tier not available");
 
-        uint256 tokenId = totalSupply() + 1;
+        uint256 tokenId = supplyTokenId + 1;
         tierOf[tokenId] = _tier;
 
         releaseUpline(minter, tokenId, _uplineTokenId, _tier);
         _mint(minter, tokenId);
         
-        emit PurchasePosition(minter, tokenId, _tier, ownerOf(_uplineTokenId), _uplineTokenId);
+        address uplineAddress = _uplineTokenId > 0 ? ownerOf(_uplineTokenId) : address(0);
+        emit PurchasePosition(minter, tokenId, _tier, uplineAddress, _uplineTokenId);
     }
 }
