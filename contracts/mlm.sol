@@ -76,16 +76,17 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     }
 
     function releaseUpline(address _minter, uint256 _tokenId, uint256 _uplineTokenId, Tier _tier) internal {
+        uint256 price = priceTier[_tier];
         uint256 shareProfit = priceTier[_tier];
         if (_uplineTokenId > 0) {
             lineTree[_tokenId] = _uplineTokenId;
             uint256 currentTokenId = _uplineTokenId;
             for (uint256 i = 0; i < 10; i++) {
-                uint256 profit = shareProfit * sharePercentage[tierOf[currentTokenId]] / 100;
+                uint256 profit = price * sharePercentage[tierOf[currentTokenId]] / 100;
                 tokenUSDC.transferFrom(_minter, ownerOf(currentTokenId), profit);
                 shareProfit -= profit;
                 if (i < 9 && lineTree[currentTokenId] == 0) {
-                    profit = shareProfit * sharePercentage[tierOf[_uplineTokenId]] / 100 * (9 - i);
+                    profit = price * sharePercentage[tierOf[_uplineTokenId]] / 100 * (9 - i);
                     tokenUSDC.transferFrom(_minter, ownerOf(_uplineTokenId), profit);
                     shareProfit -= profit;
                     break;
@@ -115,14 +116,14 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     }
 
     function upgrade(uint256 _tokenId, Tier _newTier) external nonReentrant {
-        Tier previousTokenId = tierOf[_tokenId];
-        require(uint8(previousTokenId) < 3, "Tier not available");
-        require(uint8(_newTier) > uint8(previousTokenId), "New tier must be more than the previous tier");
+        Tier previousTier = tierOf[_tokenId];
+        require(uint8(previousTier) < 3, "Tier not available");
+        require(uint8(_newTier) > uint8(previousTier), "New tier must be more than the previous tier");
 
         address owner = ownerOf(_tokenId);
         releaseUpline(owner, _tokenId, lineTree[_tokenId], _newTier);
         tierOf[_tokenId] = _newTier;
 
-        emit UpgradePosition(owner, _tokenId, _newTier, previousTokenId);
+        emit UpgradePosition(owner, _tokenId, _newTier, previousTier);
     }
 }
