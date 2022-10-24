@@ -67,13 +67,21 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
 
     function investment() external nonReentrant {
         require(investorAddress == address(0), "Investment has been filled");
-        uint256 shareOwner1 = investmentAmount * percentageShareOwner / 100;
-        uint256 shareOwner2 = investmentAmount - shareOwner1;
+        uint256 shareInvestOwner1 = investmentAmount * percentageShareOwner / 100;
+        uint256 shareInvestOwner2 = investmentAmount - shareInvestOwner1;
         address who = _msgSender();
-        tokenUSDC.transferFrom(who, payeesOwner[0], shareOwner1);
-        tokenUSDC.transferFrom(who, payeesOwner[1], shareOwner2);
+        tokenUSDC.transferFrom(who, payeesOwner[0], shareInvestOwner1);
+        tokenUSDC.transferFrom(who, payeesOwner[1], shareInvestOwner2);
         investorAddress = who;
         pendingClaimInvestor = maxInvestmentProfit;
+
+        uint256 currentBalance = tokenUSDC.balanceOf(address(this));
+        if (currentBalance > 0) {
+            uint256 shareOwner1 = currentBalance * percentageShareOwner / 100;
+            uint256 shareOwner2 = currentBalance - shareOwner1;
+            tokenUSDC.transfer(payeesOwner[0], shareOwner1);
+            tokenUSDC.transfer(payeesOwner[1], shareOwner2);
+        }
     }
 
     function releaseUpline(address _minter, uint256 _tokenId, uint256 _uplineTokenId, Tier _tier) internal {
