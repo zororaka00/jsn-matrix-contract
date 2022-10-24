@@ -21,8 +21,8 @@ describe("MLM", () => {
     await instance_usdc.connect(accounts[1]).faucet("100000000");
     await instance_usdc.connect(accounts[1]).increaseAllowance(instance_mlm.address, "100000000");
 
-    await instance_usdc.connect(accounts[2]).faucet("200000000");
-    await instance_usdc.connect(accounts[2]).increaseAllowance(instance_mlm.address, "200000000");
+    await instance_usdc.connect(accounts[2]).faucet("500000000");
+    await instance_usdc.connect(accounts[2]).increaseAllowance(instance_mlm.address, "500000000");
   });
 
   it("2. Mint", async () => {
@@ -38,11 +38,37 @@ describe("MLM", () => {
     expect(Number(await instance_usdc.balanceOf(instance_mlm.address))).to.equal(102000000);
   });
 
-  it("2. Upgrade Tier", async () => {
-    await expect(instance_mlm.connect(accounts[1]).upgrade("2", "3"))
+  it("3. Upgrade Tier", async () => {
+    await expect(instance_mlm.connect(accounts[2]).upgrade("2", "3"))
     .to.emit(instance_mlm, 'UpgradePosition')
     .withArgs(accounts[2].address, "2", 3, 0);
     expect(Number(await instance_usdc.balanceOf(accounts[1].address))).to.equal(88000000);
     expect(Number(await instance_usdc.balanceOf(instance_mlm.address))).to.equal(122000000);
+  });
+
+  it("4. Release Share", async () => {
+    await instance_mlm.releaseShare();
+    expect(Number(await instance_usdc.balanceOf("0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD"))).to.equal(91500000);
+    expect(Number(await instance_usdc.balanceOf("0x189E379482a066Ec681924b69CDF248494687c51"))).to.equal(30500000);
+  });
+
+  it("5. Investment", async () => {
+    await instance_usdc.connect(accounts[3]).faucet("20000000");
+    await instance_usdc.connect(accounts[3]).increaseAllowance(instance_mlm.address, "20000000");
+
+    await instance_mlm.connect(accounts[3]).investment();
+    expect(Number(await instance_usdc.balanceOf(accounts[3].address))).to.equal(0);
+    expect(Number(await instance_usdc.balanceOf("0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD"))).to.equal(106500000);
+    expect(Number(await instance_usdc.balanceOf("0x189E379482a066Ec681924b69CDF248494687c51"))).to.equal(35500000);
+
+    await expect(instance_mlm.connect(accounts[2]).mint("0", "3"))
+    .to.emit(instance_mlm, 'PurchasePosition')
+    .withArgs(accounts[2].address, "3", 3, addressNull, "0");
+    expect(Number(await instance_usdc.balanceOf(instance_mlm.address))).to.equal(100000000);
+
+    await instance_mlm.releaseShare();
+    expect(Number(await instance_usdc.balanceOf(accounts[3].address))).to.equal(30000000);
+    expect(Number(await instance_usdc.balanceOf("0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD"))).to.equal(159000000);
+    expect(Number(await instance_usdc.balanceOf("0x189E379482a066Ec681924b69CDF248494687c51"))).to.equal(53000000);
   });
 });

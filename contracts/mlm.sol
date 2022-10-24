@@ -9,15 +9,16 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
 
     IERC20 public tokenUSDC;
 
-    uint256 public constant investmentAmount = 80000e6; // 80,000 USDC
-    uint256 public constant maxInvestmentProfit = 120000e6; // 120,000 USDC
+    // uint256 public constant investmentAmount = 80000e6; // 80,000 USDC (Production)
+    // uint256 public constant maxInvestmentProfit = 120000e6; // 120,000 USDC (Production)
+    uint256 public constant investmentAmount = 20e6; // 20 USDC (Testnet)
+    uint256 public constant maxInvestmentProfit = 30e6; // 30 USDC (Testnet)
     uint256 private constant percentageShareOwner = 75; // 75%
     address[] private payeesOwner = [
         0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD, // Owner 1
         0x189E379482a066Ec681924b69CDF248494687c51 // Owner 2
     ];
 
-    uint256 public balanceOwner;
     uint256 public pendingClaimInvestor;
     address public investorAddress;
 
@@ -43,13 +44,12 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     }
 
     function releaseShare() external nonReentrant {
-        uint256 currentBalance = balanceOwner;
-        balanceOwner = 0;
+        uint256 currentBalance = tokenUSDC.balanceOf(address(this));
         if (investorAddress != address(0)) {
             if (pendingClaimInvestor <= currentBalance) {
-                tokenUSDC.transfer(investorAddress, currentBalance - pendingClaimInvestor);
-                pendingClaimInvestor = 0;
+                tokenUSDC.transfer(investorAddress, pendingClaimInvestor);
                 currentBalance -= pendingClaimInvestor;
+                pendingClaimInvestor = 0;
                 investorAddress = address(0);
             } else {
                 tokenUSDC.transfer(investorAddress, currentBalance);
@@ -69,15 +69,16 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
         require(investorAddress == address(0), "Investment has been filled");
         uint256 shareOwner1 = investmentAmount * percentageShareOwner / 100;
         uint256 shareOwner2 = investmentAmount - shareOwner1;
-        tokenUSDC.transfer(payeesOwner[0], shareOwner1);
-        tokenUSDC.transfer(payeesOwner[1], shareOwner2);
-        investorAddress = _msgSender();
+        address who = _msgSender();
+        tokenUSDC.transferFrom(who, payeesOwner[0], shareOwner1);
+        tokenUSDC.transferFrom(who, payeesOwner[1], shareOwner2);
+        investorAddress = who;
         pendingClaimInvestor = maxInvestmentProfit;
     }
 
     function releaseUpline(address _minter, uint256 _tokenId, uint256 _uplineTokenId, Tier _tier) internal {
         uint256 price = priceTier[_tier];
-        uint256 shareProfit = priceTier[_tier];
+        uint256 shareProfit = price;
         if (_uplineTokenId > 0) {
             lineTree[_tokenId] = _uplineTokenId;
             uint256 currentTokenId = _uplineTokenId;
@@ -96,7 +97,6 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
             }
         }
         
-        balanceOwner += shareProfit;
         tokenUSDC.transferFrom(_minter, address(this), shareProfit);
     }
 
@@ -117,10 +117,11 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
 
     function upgrade(uint256 _tokenId, Tier _newTier) external nonReentrant {
         Tier previousTier = tierOf[_tokenId];
+        address owner = ownerOf(_tokenId);
+        require(owner == _msgSender(), "Not the owner");
         require(uint8(previousTier) < 3, "Tier not available");
         require(uint8(_newTier) > uint8(previousTier), "New tier must be more than the previous tier");
 
-        address owner = ownerOf(_tokenId);
         releaseUpline(owner, _tokenId, lineTree[_tokenId], _newTier);
         tierOf[_tokenId] = _newTier;
 
