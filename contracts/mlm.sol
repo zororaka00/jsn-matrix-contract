@@ -1,10 +1,11 @@
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MLM is ERC721Enumerable, ReentrancyGuard {
+contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
     enum Tier { LEVEL_LOW, LEVEL_MEDIUM, LEVEL_HARD, LEVEL_EXPERT }
 
     IERC20 public tokenUSDC;
@@ -18,6 +19,7 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
         0x096222480b6529B0a7cf150846f4D85AEcf6f5bC, // Owner 1
         0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7 // Owner 2
     ];
+    string private customURI;
 
     uint256 public pendingClaimInvestor;
     address public investorAddress;
@@ -41,6 +43,32 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
         sharePercentage[Tier.LEVEL_MEDIUM] = 4; // 4%
         sharePercentage[Tier.LEVEL_HARD] = 6; // 6%
         sharePercentage[Tier.LEVEL_EXPERT] = 8; // 8%
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return customURI;
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        _requireMinted(tokenId);
+
+        uint8 tierTokenId = uint8(tierOf[tokenId]);
+        string memory base = _baseURI();
+
+        // If there is no base URI, return the token URI.
+        if (bytes(base).length == 0) {
+            return Strings.toString(tierTokenId);
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(base).length > 0) {
+            return string(abi.encodePacked(base, Strings.toString(tierTokenId)));
+        }
+
+        return super.tokenURI(tokenId);
+    }
+
+    function setCustomURI(string memory _customURI) external onlyOwner {
+        customURI = _customURI;
     }
 
     function releaseShare() external nonReentrant {

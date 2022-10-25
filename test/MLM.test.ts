@@ -48,8 +48,8 @@ describe("MLM", () => {
 
   it("4. Release Share", async () => {
     await instance_mlm.releaseShare();
-    expect(Number(await instance_usdc.balanceOf("0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD"))).to.equal(91500000);
-    expect(Number(await instance_usdc.balanceOf("0x189E379482a066Ec681924b69CDF248494687c51"))).to.equal(30500000);
+    expect(Number(await instance_usdc.balanceOf("0x096222480b6529B0a7cf150846f4D85AEcf6f5bC"))).to.equal(91500000);
+    expect(Number(await instance_usdc.balanceOf("0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7"))).to.equal(30500000);
   });
 
   it("5. Investment", async () => {
@@ -58,8 +58,8 @@ describe("MLM", () => {
 
     await instance_mlm.connect(accounts[3]).investment();
     expect(Number(await instance_usdc.balanceOf(accounts[3].address))).to.equal(0);
-    expect(Number(await instance_usdc.balanceOf("0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD"))).to.equal(106500000);
-    expect(Number(await instance_usdc.balanceOf("0x189E379482a066Ec681924b69CDF248494687c51"))).to.equal(35500000);
+    expect(Number(await instance_usdc.balanceOf("0x096222480b6529B0a7cf150846f4D85AEcf6f5bC"))).to.equal(106500000);
+    expect(Number(await instance_usdc.balanceOf("0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7"))).to.equal(35500000);
 
     await expect(instance_mlm.connect(accounts[2]).mint("0", "3"))
     .to.emit(instance_mlm, 'PurchasePosition')
@@ -68,7 +68,13 @@ describe("MLM", () => {
 
     await instance_mlm.releaseShare();
     expect(Number(await instance_usdc.balanceOf(accounts[3].address))).to.equal(30000000);
-    expect(Number(await instance_usdc.balanceOf("0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD"))).to.equal(159000000);
-    expect(Number(await instance_usdc.balanceOf("0x189E379482a066Ec681924b69CDF248494687c51"))).to.equal(53000000);
+    expect(Number(await instance_usdc.balanceOf("0x096222480b6529B0a7cf150846f4D85AEcf6f5bC"))).to.equal(159000000);
+    expect(Number(await instance_usdc.balanceOf("0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7"))).to.equal(53000000);
+  });
+
+  it("6. Set Custom URI", async () => {
+    expect(await instance_mlm.tokenURI("1")).to.equal("3");
+    await instance_mlm.setCustomURI("ipfs://0x/");
+    expect(await instance_mlm.tokenURI("1")).to.equal("ipfs://0x/3");
   });
 });
