@@ -15,8 +15,8 @@ contract MLM is ERC721Enumerable, ReentrancyGuard {
     uint256 public constant maxInvestmentProfit = 30e6; // 30 USDC (Testnet)
     uint256 private constant percentageShareOwner = 75; // 75%
     address[] private payeesOwner = [
-        0x9586C94d8D058188696Ba82A03DCEfbFfDD206aD, // Owner 1
-        0x189E379482a066Ec681924b69CDF248494687c51 // Owner 2
+        0x096222480b6529B0a7cf150846f4D85AEcf6f5bC, // Owner 1
+        0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7 // Owner 2
     ];
 
     uint256 public pendingClaimInvestor;
