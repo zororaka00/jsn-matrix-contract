@@ -38,7 +38,7 @@ describe("MLM", () => {
     expect(Number(await instance_usdc.balanceOf(instance_mlm.address))).to.equal(102000000);
   });
 
-  it("3. Upgrade Tier", async () => {
+  it("3. Upgrade Level", async () => {
     await expect(instance_mlm.connect(accounts[2]).upgrade("2", "3"))
     .to.emit(instance_mlm, 'UpgradePosition')
     .withArgs(accounts[2].address, "2", 3, 0);

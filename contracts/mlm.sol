@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
-    enum Tier { LEVEL_LOW, LEVEL_MEDIUM, LEVEL_HARD, LEVEL_EXPERT }
+    enum Level { LEVEL_LOW, LEVEL_MEDIUM, LEVEL_HARD, LEVEL_EXPERT }
 
     IERC20 public tokenUSDC;
 
@@ -24,25 +24,25 @@ contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
     uint256 public pendingClaimInvestor;
     address public investorAddress;
 
-    mapping(Tier => uint256) public priceTier;
-    mapping(uint256 => Tier) public tierOf;
-    mapping(Tier => uint256) public sharePercentage;
+    mapping(Level => uint256) public priceLevel;
+    mapping(uint256 => Level) public levelOf;
+    mapping(Level => uint256) public sharePercentage;
     mapping(uint256 => uint256) public lineTree;
 
-    event PurchasePosition(address indexed who, uint256 indexed tokenId, Tier indexed tier, address uplineAddress, uint256 uplineTokenId);
-    event UpgradePosition(address indexed who, uint256 indexed tokenId, Tier indexed newTier, Tier previousTier);
+    event PurchasePosition(address indexed who, uint256 indexed tokenId, Level indexed level, address uplineAddress, uint256 uplineTokenId);
+    event UpgradePosition(address indexed who, uint256 indexed tokenId, Level indexed newLevel, Level previousLevel);
 
     constructor(address _addressUSDC) ERC721("MLM", "MLM") {
         tokenUSDC = IERC20(_addressUSDC);
-        priceTier[Tier.LEVEL_LOW] = 10e6; // 10 USDC
-        priceTier[Tier.LEVEL_MEDIUM] = 20e6; // 20 USDC
-        priceTier[Tier.LEVEL_HARD] = 50e6; // 50 USDC
-        priceTier[Tier.LEVEL_EXPERT] = 100e6; // 100 USDC
+        priceLevel[Level.LEVEL_LOW] = 10e6; // 10 USDC
+        priceLevel[Level.LEVEL_MEDIUM] = 20e6; // 20 USDC
+        priceLevel[Level.LEVEL_HARD] = 50e6; // 50 USDC
+        priceLevel[Level.LEVEL_EXPERT] = 100e6; // 100 USDC
 
-        sharePercentage[Tier.LEVEL_LOW] = 2; // 2%
-        sharePercentage[Tier.LEVEL_MEDIUM] = 4; // 4%
-        sharePercentage[Tier.LEVEL_HARD] = 6; // 6%
-        sharePercentage[Tier.LEVEL_EXPERT] = 8; // 8%
+        sharePercentage[Level.LEVEL_LOW] = 2; // 2%
+        sharePercentage[Level.LEVEL_MEDIUM] = 4; // 4%
+        sharePercentage[Level.LEVEL_HARD] = 6; // 6%
+        sharePercentage[Level.LEVEL_EXPERT] = 8; // 8%
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
@@ -52,16 +52,16 @@ contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
 
-        uint8 tierTokenId = uint8(tierOf[tokenId]);
+        uint8 levelTokenId = uint8(levelOf[tokenId]);
         string memory base = _baseURI();
 
         // If there is no base URI, return the token URI.
         if (bytes(base).length == 0) {
-            return Strings.toString(tierTokenId);
+            return Strings.toString(levelTokenId);
         }
         // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
         if (bytes(base).length > 0) {
-            return string(abi.encodePacked(base, Strings.toString(tierTokenId)));
+            return string(abi.encodePacked(base, Strings.toString(levelTokenId)));
         }
 
         return super.tokenURI(tokenId);
@@ -112,18 +112,18 @@ contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
         }
     }
 
-    function releaseUpline(address _minter, uint256 _tokenId, uint256 _uplineTokenId, Tier _tier) internal {
-        uint256 price = priceTier[_tier];
+    function releaseUpline(address _minter, uint256 _tokenId, uint256 _uplineTokenId, Level _level) internal {
+        uint256 price = priceLevel[_level];
         uint256 shareProfit = price;
         if (_uplineTokenId > 0) {
             lineTree[_tokenId] = _uplineTokenId;
             uint256 currentTokenId = _uplineTokenId;
             for (uint256 i = 0; i < 10; i++) {
-                uint256 profit = price * sharePercentage[tierOf[currentTokenId]] / 100;
+                uint256 profit = price * sharePercentage[levelOf[currentTokenId]] / 100;
                 tokenUSDC.transferFrom(_minter, ownerOf(currentTokenId), profit);
                 shareProfit -= profit;
                 if (i < 9 && lineTree[currentTokenId] == 0) {
-                    profit = price * sharePercentage[tierOf[_uplineTokenId]] / 100 * (9 - i);
+                    profit = price * sharePercentage[levelOf[_uplineTokenId]] / 100 * (9 - i);
                     tokenUSDC.transferFrom(_minter, ownerOf(_uplineTokenId), profit);
                     shareProfit -= profit;
                     break;
@@ -136,31 +136,31 @@ contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
         tokenUSDC.transferFrom(_minter, address(this), shareProfit);
     }
 
-    function mint(uint256 _uplineTokenId, Tier _tier) external nonReentrant {
+    function mint(uint256 _uplineTokenId, Level _level) external nonReentrant {
         uint256 supplyTokenId = totalSupply();
         address minter = _msgSender();
-        require(uint8(_tier) < 4, "Tier not available");
+        require(uint8(_level) < 4, "Level not available");
         require(_uplineTokenId <= supplyTokenId, "Invalid TokenId");
 
         uint256 tokenId = supplyTokenId + 1;
-        releaseUpline(minter, tokenId, _uplineTokenId, _tier);
+        releaseUpline(minter, tokenId, _uplineTokenId, _level);
         _mint(minter, tokenId);
-        tierOf[tokenId] = _tier;
+        levelOf[tokenId] = _level;
         
         address uplineAddress = _uplineTokenId > 0 ? ownerOf(_uplineTokenId) : address(0);
-        emit PurchasePosition(minter, tokenId, _tier, uplineAddress, _uplineTokenId);
+        emit PurchasePosition(minter, tokenId, _level, uplineAddress, _uplineTokenId);
     }
 
-    function upgrade(uint256 _tokenId, Tier _newTier) external nonReentrant {
-        Tier previousTier = tierOf[_tokenId];
+    function upgrade(uint256 _tokenId, Level _newLevel) external nonReentrant {
+        Level previousLevel = levelOf[_tokenId];
         address owner = ownerOf(_tokenId);
         require(owner == _msgSender(), "Not the owner");
-        require(uint8(previousTier) < 3, "Tier not available");
-        require(uint8(_newTier) > uint8(previousTier), "New tier must be more than the previous tier");
+        require(uint8(previousLevel) < 3, "Level not available");
+        require(uint8(_newLevel) > uint8(previousLevel), "New Level must be more than the previous level");
 
-        releaseUpline(owner, _tokenId, lineTree[_tokenId], _newTier);
-        tierOf[_tokenId] = _newTier;
+        releaseUpline(owner, _tokenId, lineTree[_tokenId], _newLevel);
+        levelOf[_tokenId] = _newLevel;
 
-        emit UpgradePosition(owner, _tokenId, _newTier, previousTier);
+        emit UpgradePosition(owner, _tokenId, _newLevel, previousLevel);
     }
 }
