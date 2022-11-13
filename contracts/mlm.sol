@@ -10,8 +10,8 @@ contract MLM is Ownable, ERC721Enumerable, ReentrancyGuard {
 
     IERC20 public tokenUSDC;
 
-    // uint256 public constant investmentAmount = 80000e6; // 80,000 USDC (Production)
-    // uint256 public constant maxInvestmentProfit = 120000e6; // 120,000 USDC (Production)
+    // uint256 public constant investmentAmount = 50000e6; // 50,000 USDC (Production)
+    // uint256 public constant maxInvestmentProfit = 75000e6; // 75,000 USDC (Production)
     uint256 public constant investmentAmount = 20e6; // 20 USDC (Testnet)
     uint256 public constant maxInvestmentProfit = 30e6; // 30 USDC (Testnet)
     uint256 private constant percentageShareOwner = 75; // 75%
