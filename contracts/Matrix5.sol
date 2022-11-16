@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/InterfaceShareOwner.sol";
 
-contract Matrix is Ownable, ReentrancyGuard {
+contract Matrix5 is Ownable, ReentrancyGuard {
     enum Tier { LEVEL_LOW, LEVEL_MEDIUM, LEVEL_HARD, LEVEL_EXPERT }
 
     IERC20 public tokenBUSD;
@@ -23,20 +23,13 @@ contract Matrix is Ownable, ReentrancyGuard {
 
     address[] private defaultUplineAddress;
     uint256[] public sharePercentage = [
-        37500, // 37.5%
-        18750, // 18.75%
-        6250, // 6.25%
-        1250, // 1.25%
-        1250, // 1.25%
-        1875, // 1.875%
-        1875, // 1.875%
-        3125, // 3.125%
-        4375, // 4.375%
-        5000, // 5%
-        6250, // 6.25%
-        12500 // 12.5%
+        500, // 50% = $5
+        200, // 20% = $2
+        50, // 5% = $0.5
+        50, // 5% = $0.5
+        200 // 20% = $2
     ];
-    uint256 private constant priceBUSD = 16e18;
+    uint256 private constant priceBUSD = 10e18;
     uint256 public pendingClaimInvestor;
     address public investorAddress;
 
@@ -46,7 +39,7 @@ contract Matrix is Ownable, ReentrancyGuard {
     event Registration(address indexed who, address indexed uplineAddress, uint256 indexed timestamp);
 
     constructor(address _addressBUSD, address[] memory _defaultUplineAddress) {
-        require(_defaultUplineAddress.length == sharePercentage.length, "Max length is 12");
+        require(_defaultUplineAddress.length == sharePercentage.length, "Max length is 5");
         tokenBUSD = IERC20(_addressBUSD);
         defaultUplineAddress = _defaultUplineAddress;
         for (uint256 i = 0; i < (_defaultUplineAddress.length - 1); i++) {
@@ -55,7 +48,7 @@ contract Matrix is Ownable, ReentrancyGuard {
     }
 
     function releaseShareOwner() external {
-        for (uint256 i = 0; i < 12; i++) {
+        for (uint256 i = 0; i < 5; i++) {
             InterfaceShareOwner(defaultUplineAddress[i]).withdrawToken(address(tokenBUSD));
         }
     }
@@ -91,7 +84,7 @@ contract Matrix is Ownable, ReentrancyGuard {
     
     function registration(address _uplineAddress) external payable nonReentrant {
         uint256 valueCoin = msg.value;
-        require(valueCoin >= 2 ether, "Less than 2 Matic");
+        require(valueCoin >= 1.6 ether, "Less than 1.6 Matic");
         address who = _msgSender();
         address uplineAddress = _checkUpline(_uplineAddress);
         address currentAddress = uplineAddress;
@@ -99,9 +92,9 @@ contract Matrix is Ownable, ReentrancyGuard {
         sendToOwner(valueCoin);
 
         lineMatrix[who] = currentAddress;
-        for (uint256 i = 0; i < 12; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             uint256 profit = priceBUSD * sharePercentage[i] / 1000;
-            if (investorAddress != address(0) && currentAddress == defaultUplineAddress[12]) {
+            if (investorAddress != address(0) && currentAddress == defaultUplineAddress[4]) {
                 if (shareProfit > pendingClaimInvestor) {
                     tokenBUSD.transferFrom(who, investorAddress, shareProfit - pendingClaimInvestor);
                     pendingClaimInvestor = 0;
