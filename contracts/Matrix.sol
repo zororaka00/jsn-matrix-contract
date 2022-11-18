@@ -80,42 +80,53 @@ contract Matrix is Ownable, ReentrancyGuard {
     }
 
     function _checkUpline(address _uplineAddress) internal view returns(address) {
-        if (_uplineAddress != address(0)) {
-            for (uint256 i = 0; i < (defaultUplineAddress.length - 1); i++) {
-                require(defaultUplineAddress[i] != _uplineAddress, "Cannot set default upline address");
+        address uplineAddress = _uplineAddress;
+        if (uplineAddress != address(0)) {
+            for (uint256 i = 1; i < defaultUplineAddress.length; i++) {
+                if (uplineAddress == defaultUplineAddress[i]) {
+                    uplineAddress = defaultUplineAddress[0];
+                    break;
+                }
             }
+        } else {
+            uplineAddress = defaultUplineAddress[0];
         }
         
-        return _uplineAddress == address(0) ? defaultUplineAddress[0] : _uplineAddress;
+        return uplineAddress;
     }
     
     function registration(address _uplineAddress) external payable nonReentrant {
+        address who = _msgSender();
+        require(lineMatrix[who] == address(0), "Address already registration");
         uint256 valueCoin = msg.value;
         require(valueCoin >= 2 ether, "Less than 2 Matic");
-        address who = _msgSender();
         address uplineAddress = _checkUpline(_uplineAddress);
         address currentAddress = uplineAddress;
         uint256 shareProfit = priceBUSD;
-        sendToOwner(valueCoin);
+
+        if (investorAddress != address(0)) {
+            if (valueCoin >= pendingClaimInvestor) {
+                Address.sendValue(payable(investorAddress), pendingClaimInvestor);
+                valueCoin -= pendingClaimInvestor;
+                pendingClaimInvestor = 0;
+                investorAddress = address(0);
+            } else {
+                Address.sendValue(payable(investorAddress), valueCoin);
+                valueCoin = 0;
+                pendingClaimInvestor -= valueCoin;
+            }
+        }
+
+        if (valueCoin > 0) {
+            sendToOwner(valueCoin);
+        }
 
         lineMatrix[who] = currentAddress;
         for (uint256 i = 0; i < 12; i++) {
             uint256 profit = priceBUSD * sharePercentage[i] / 100000;
-            if (investorAddress != address(0) && currentAddress == defaultUplineAddress[0]) {
-                if (shareProfit > pendingClaimInvestor) {
-                    tokenBUSD.transferFrom(who, investorAddress, shareProfit - pendingClaimInvestor);
-                    pendingClaimInvestor = 0;
-                    investorAddress = address(0);
-                } else {
-                    tokenBUSD.transferFrom(who, investorAddress, shareProfit);
-                    pendingClaimInvestor -= shareProfit;
-                }
-                break;
-            } else {
-                shareProfit -= profit;
-                tokenBUSD.transferFrom(who, currentAddress, profit);
-                currentAddress = lineMatrix[currentAddress];
-            }
+            shareProfit -= profit;
+            tokenBUSD.transferFrom(who, currentAddress, profit);
+            currentAddress = lineMatrix[currentAddress];
         }
 
         emit Registration(who, uplineAddress, block.timestamp);
