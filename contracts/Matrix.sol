@@ -50,7 +50,7 @@ contract Matrix is Ownable, ReentrancyGuard {
         tokenBUSD = IERC20(_addressBUSD);
         defaultUplineAddress = _defaultUplineAddress;
         for (uint256 i = 0; i < (_defaultUplineAddress.length - 1); i++) {
-            lineMatrix[_defaultUplineAddress[i + 1]] = _defaultUplineAddress[i];
+            lineMatrix[_defaultUplineAddress[i]] = _defaultUplineAddress[i + 1];
         }
     }
 
@@ -86,7 +86,7 @@ contract Matrix is Ownable, ReentrancyGuard {
             }
         }
         
-        return _uplineAddress == address(0) ? defaultUplineAddress[4] : _uplineAddress;
+        return _uplineAddress == address(0) ? defaultUplineAddress[0] : _uplineAddress;
     }
     
     function registration(address _uplineAddress) external payable nonReentrant {
@@ -100,8 +100,8 @@ contract Matrix is Ownable, ReentrancyGuard {
 
         lineMatrix[who] = currentAddress;
         for (uint256 i = 0; i < 12; i++) {
-            uint256 profit = priceBUSD * sharePercentage[i] / 1000;
-            if (investorAddress != address(0) && currentAddress == defaultUplineAddress[12]) {
+            uint256 profit = priceBUSD * sharePercentage[i] / 100000;
+            if (investorAddress != address(0) && currentAddress == defaultUplineAddress[0]) {
                 if (shareProfit > pendingClaimInvestor) {
                     tokenBUSD.transferFrom(who, investorAddress, shareProfit - pendingClaimInvestor);
                     pendingClaimInvestor = 0;
