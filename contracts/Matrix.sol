@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/InterfaceShareOwner.sol";
 
 contract Matrix is Ownable, ReentrancyGuard {
-    enum Tier { LEVEL_LOW, LEVEL_MEDIUM, LEVEL_HARD, LEVEL_EXPERT }
-
     IERC20 public tokenBUSD;
 
     // uint256 public constant investmentAmount = 50000 ether; // 50,000 MATIC (Production)
