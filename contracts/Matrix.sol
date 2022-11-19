@@ -11,10 +11,10 @@ contract Matrix is Ownable, ReentrancyGuard {
 
     IERC20 public tokenBUSD;
 
-    // uint256 public constant investmentAmount = 50000e18; // 50,000 MATIC (Production)
-    // uint256 public constant maxInvestmentProfit = 75000e18; // 75,000 MATIC (Production)
-    uint256 public constant investmentAmount = 2e18; // 2 MATIC (Testnet)
-    uint256 public constant maxInvestmentProfit = 3e18; // 3 MATIC (Testnet)
+    // uint256 public constant investmentAmount = 50000 ether; // 50,000 MATIC (Production)
+    // uint256 public constant maxInvestmentProfit = 75000 ether; // 75,000 MATIC (Production)
+    uint256 public constant investmentAmount = 2 ether; // 2 MATIC (Testnet)
+    uint256 public constant maxInvestmentProfit = 3 ether; // 3 MATIC (Testnet)
     uint256 private constant sharePercentageOwner = 75; // 75%
     address[] private payeesOwner = [
         0x096222480b6529B0a7cf150846f4D85AEcf6f5bC, // Owner 1
@@ -67,7 +67,7 @@ contract Matrix is Ownable, ReentrancyGuard {
         Address.sendValue(payable(payeesOwner[1]), shareInvestOwner2);
     }
 
-    function investment() external payable nonReentrant {
+    function invest() external payable nonReentrant {
         require(investorAddress == address(0), "Investment has been filled");
         uint256 valueCoin = msg.value;
         require(valueCoin >= investmentAmount, "Value less than 50,000 MATIC");
@@ -112,8 +112,8 @@ contract Matrix is Ownable, ReentrancyGuard {
                 investorAddress = address(0);
             } else {
                 Address.sendValue(payable(investorAddress), valueCoin);
-                valueCoin = 0;
                 pendingClaimInvestor -= valueCoin;
+                valueCoin = 0;
             }
         }
 
