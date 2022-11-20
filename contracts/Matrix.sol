@@ -79,7 +79,7 @@ contract Matrix is Context, ReentrancyGuard {
     function _checkUpline(address _uplineAddress) internal view returns(address) {
         address uplineAddress = _uplineAddress;
         if (uplineAddress != address(0)) {
-            for (uint256 i = 1; i < defaultUplineAddress.length; i++) {
+            for (uint256 i = 0; i < defaultUplineAddress.length; i++) {
                 if (uplineAddress == defaultUplineAddress[i]) {
                     uplineAddress = defaultUplineAddress[0];
                     break;
