@@ -9,10 +9,8 @@ import "./interfaces/InterfaceShareOwner.sol";
 contract Matrix is Ownable, ReentrancyGuard {
     IERC20 public tokenBUSD;
 
-    // uint256 public constant investmentAmount = 50000 ether; // 50,000 MATIC (Production)
-    // uint256 public constant maxInvestmentProfit = 75000 ether; // 75,000 MATIC (Production)
-    uint256 public constant investmentAmount = 2 ether; // 2 MATIC (Testnet)
-    uint256 public constant maxInvestmentProfit = 3 ether; // 3 MATIC (Testnet)
+    uint256 public constant investmentAmount = 50000 ether; // 50,000 MATIC
+    uint256 public constant maxInvestmentProfit = 75000 ether; // 75,000 MATIC
     uint256 private constant sharePercentageOwner = 75; // 75%
     address[] private payeesOwner = [
         0x096222480b6529B0a7cf150846f4D85AEcf6f5bC, // Owner 1
