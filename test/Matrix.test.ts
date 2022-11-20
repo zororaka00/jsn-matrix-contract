@@ -13,7 +13,7 @@ describe("Matrix", () => {
 
   before(async function() {
     provider = waffle.provider;
-    addressOwner = ["0x096222480b6529B0a7cf150846f4D85AEcf6f5bC", "0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7"];
+    addressOwner = ["0x75552A8202076e707F37cf6c5F0782BCA054a6F3", "0xa8bf3aC4f567384F2f44B4E7C6d11b7664749f35"];
     addressNull = "0x0000000000000000000000000000000000000000";
     accounts = await ethers.getSigners();
     instance_busd = await (await ethers.getContractFactory("TokenExample")).deploy();

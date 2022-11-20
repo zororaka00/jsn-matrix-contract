@@ -9,8 +9,8 @@ contract ShareOwner is PaymentSplitter, InterfaceShareOwner {
         25 // 25%
     ];
     address[] private _payees = [
-        0x096222480b6529B0a7cf150846f4D85AEcf6f5bC, // Owner 1
-        0xE7FDBFec446CA0010da257DE450dC6f6e9b13DF7 // Owner 2
+        0x75552A8202076e707F37cf6c5F0782BCA054a6F3, // Owner 1
+        0xa8bf3aC4f567384F2f44B4E7C6d11b7664749f35 // Owner 2
     ];
 
     constructor() PaymentSplitter(_payees, _shares) { }
