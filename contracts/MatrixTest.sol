@@ -2,10 +2,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/InterfaceShareOwner.sol";
 
-contract MatrixTest is ReentrancyGuard {
+contract MatrixTest is Context, ReentrancyGuard {
     IERC20 public tokenBUSD;
 
     uint256 public constant investmentAmount = 2 ether; // 2 MATIC
