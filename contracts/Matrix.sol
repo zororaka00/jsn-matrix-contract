@@ -39,6 +39,7 @@ contract Matrix is Ownable, ReentrancyGuard {
     address public investorAddress;
 
     mapping(address => address) public lineMatrix;
+    mapping(address => uint256) public receivedBUSD;
 
     event Investment(address indexed who, uint256 indexed timestamp);
     event Registration(address indexed who, address indexed uplineAddress, uint256 indexed timestamp);
@@ -123,6 +124,7 @@ contract Matrix is Ownable, ReentrancyGuard {
         for (uint256 i = 0; i < 12; i++) {
             uint256 profit = priceBUSD * sharePercentage[i] / 100000;
             shareProfit -= profit;
+            receivedBUSD[currentAddress] += profit;
             tokenBUSD.transferFrom(who, currentAddress, profit);
             currentAddress = lineMatrix[currentAddress];
         }
