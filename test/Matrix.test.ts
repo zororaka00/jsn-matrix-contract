@@ -35,7 +35,7 @@ describe("Matrix", () => {
     instance_shareowner[11] = await ShareOwner.deploy();
 
     address_shareowner = await instance_shareowner.map((d: any) => d.address);
-    instance_matrix = await (await ethers.getContractFactory("Matrix")).deploy(instance_busd.address, address_shareowner);
+    instance_matrix = await (await ethers.getContractFactory("MatrixTest")).deploy(instance_busd.address, address_shareowner);
     await instance_matrix.deployed();
   });
 

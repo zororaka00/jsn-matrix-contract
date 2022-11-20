@@ -22,7 +22,7 @@ async function main() {
   let address_shareowner = await instance_shareowner.map((d: any) => d.address);
   console.log(`Address Share Owner Contract: ${address_shareowner}`);
 
-  let instance_matrix = await (await ethers.getContractFactory("Matrix")).deploy(instance_busd.address, address_shareowner);
+  let instance_matrix = await (await ethers.getContractFactory("MatrixTest")).deploy(instance_busd.address, address_shareowner);
   await instance_matrix.deployed();
   console.log(`Address Matrix Contract: ${instance_matrix.address}`);
 }
