@@ -58,6 +58,8 @@ contract Swap is UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         address who = _msgSender();
         SafeERC20Upgradeable.safeTransfer(tokenBUSD, who, receivedValue);
 
+        profitMATIC += feeValue;
+
         emit Swap(who, SwapTo.MATIC_BUSD, valueCoin, receivedValue);
     }
 
@@ -72,6 +74,8 @@ contract Swap is UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         address who = _msgSender();
         SafeERC20Upgradeable.safeTransferFrom(tokenBUSD, who, address(this), _value);
         payable(who).transfer(receivedValue);
+
+        profitBUSD += feeValue;
 
         emit Swap(who, SwapTo.BUSD_MATIC, _value, receivedValue);
     }
