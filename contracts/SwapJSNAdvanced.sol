@@ -41,22 +41,22 @@ contract SwapJSNAdvanced is SwapJSN {
         swap(who, _sendTo, _tokenIn, _tokenOut, amountIn, _feeTier);
     }
 
-    function swapTokenETH(address _tokenIn, address _tokenOut, uint256 _amountIn, uint24 _feeTier) external nonReentrant {
+    function swapTokenETH(address _tokenIn, uint256 _amountIn, uint24 _feeTier) external nonReentrant {
         address who = _msgSender();
 
         uint256 amountIn = shareFee(_tokenIn, who, _amountIn);
         
-        uint256 amountOut = swap(who, address(this), _tokenIn, _tokenOut, amountIn, _feeTier);
+        uint256 amountOut = swap(who, address(this), _tokenIn, address(WMATIC), amountIn, _feeTier);
         WMATIC.withdraw(amountOut);
         payable(who).transfer(amountOut);
     }
 
-    function swapTokenETHGift(address _sendTo, address _tokenIn, address _tokenOut, uint256 _amountIn, uint24 _feeTier) external nonReentrant {
+    function swapTokenETHGift(address _sendTo, address _tokenIn, uint256 _amountIn, uint24 _feeTier) external nonReentrant {
         address who = _msgSender();
 
         uint256 amountIn = shareFee(_tokenIn, who, _amountIn);
         
-        uint256 amountOut = swap(who, address(this), _tokenIn, _tokenOut, amountIn, _feeTier);
+        uint256 amountOut = swap(who, address(this), _tokenIn, address(WMATIC), amountIn, _feeTier);
         WMATIC.withdraw(amountOut);
         payable(_sendTo).transfer(amountOut);
     }
