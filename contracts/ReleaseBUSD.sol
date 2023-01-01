@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/InterfaceShareOwner.sol";
 
-contract RelaseBUSD {
+contract ReleaseBUSD {
     IERC20 public constant tokenBUSD = IERC20(0x9C9e5fD8bbc25984B178FdCE6117Defa39d2db39);
 
     address[] private defaultAddress = [
