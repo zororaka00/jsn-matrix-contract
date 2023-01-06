@@ -104,6 +104,24 @@ contract MatrixSC99 is ReentrancyGuard, ERC721Enumerable, InterfaceMatrixSC99 {
         emit Registration(_newTokenId, uplineTokenId, block.timestamp);
     }
 
+    function rangeTokenIds(address _who, uint256 _startIndex, uint256 _stopIndex) public view override returns (uint256[] memory) {
+        uint256 lengthOwned = _stopIndex - _startIndex;
+        uint256[] memory ownedTokenIds = new uint256[](lengthOwned);
+        for (uint i = 0; i < lengthOwned; i++) {
+            ownedTokenIds[i] = tokenOfOwnerByIndex(_who, i);
+        }
+        return ownedTokenIds;
+    }
+
+    function rangeInfo(address _who, uint256 _startIndex, uint256 _stopIndex) external view override returns (uint256[] memory, uint256[] memory) {
+        uint256[] memory ownedTokenIds = rangeTokenIds(_who, _startIndex, _stopIndex);
+        uint256[] memory profitBUSDByTokenId = new uint256[](ownedTokenIds.length);
+        for (uint i = 0; i < ownedTokenIds.length; i++) {
+            profitBUSDByTokenId[i] = receivedBUSD[ownedTokenIds[i]];
+        }
+        return (ownedTokenIds, profitBUSDByTokenId);
+    }
+
     function allTokenIds(address _who) public view override returns (uint256[] memory) {
         uint256 lengthOwned = balanceOf(_who);
         uint256[] memory ownedTokenIds = new uint256[](lengthOwned);
