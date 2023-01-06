@@ -85,6 +85,7 @@ contract MatrixSC99 is ReentrancyGuard, ERC721Enumerable, InterfaceMatrixSC99 {
     }
 
     function registration(uint256 _uplineTokenId, uint256 _newTokenId) external nonReentrant {
+        require(_exists(_uplineTokenId), "Upline tokenId not already minted");
         address who = _msgSender();
 
         sendToPoolAndOwner(who);
