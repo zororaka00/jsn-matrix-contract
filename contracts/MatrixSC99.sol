@@ -1,11 +1,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./interfaces/InterfaceMatrixSC99.sol";
 
-contract MatrixSC99 is ReentrancyGuard, ERC721Enumerable, InterfaceMatrixSC99 {
+contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
     IERC20 private tokenBUSD;
 
     uint256 private constant valueUpline = 80e18;
@@ -84,7 +83,7 @@ contract MatrixSC99 is ReentrancyGuard, ERC721Enumerable, InterfaceMatrixSC99 {
         return uplineTokenId;
     }
 
-    function registration(uint256 _uplineTokenId, uint256 _newTokenId) external nonReentrant {
+    function registration(uint256 _uplineTokenId, uint256 _newTokenId) external {
         require(_exists(_uplineTokenId), "Upline tokenId not already minted");
         address who = _msgSender();
 
