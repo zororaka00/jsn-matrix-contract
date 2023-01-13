@@ -5,13 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./interfaces/InterfaceMatrixSC99.sol";
 
 contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
-    IERC20 private tokenBUSD;
+    IERC20 private tokenUSDC;
 
     uint256 private constant valueUpline = 80e18;
     uint256 private constant shareValuePool = 10e18;
     address private constant addressPool = 0x75552A8202076e707F37cf6c5F0782BCA054a6F3;
 
-    uint256[] private shareValueOwnerBUSD = [4e18, 2e18, 2e18];
+    uint256[] private shareValueOwnerUSDC = [4e18, 2e18, 2e18];
     uint256[] private sharePercentage = [
         37500, // 37.5%
         18750, // 18.75%
@@ -35,12 +35,12 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
     string private defaultBaseURI;
 
     mapping(uint256 => uint256) public override lineMatrix;
-    mapping(uint256 => uint256) public override receivedBUSD;
+    mapping(uint256 => uint256) public override receivedUSDC;
 
     event Registration(uint256 indexed newTokenId, uint256 indexed uplineTokenId, uint256 indexed timestamp);
 
-    constructor(address _addressBUSD, string memory _defaultBaseURI, address _defaultUplineAddress) ERC721("Matrix SC99", "MSC99") {
-        tokenBUSD = IERC20(_addressBUSD);
+    constructor(address _addressUSDC, string memory _defaultBaseURI, address _defaultUplineAddress) ERC721("Matrix SC99", "MSC99") {
+        tokenUSDC = IERC20(_addressUSDC);
         defaultBaseURI = _defaultBaseURI;
         for (uint256 i = 12; i > 0; i--) {
             lineMatrix[i] = i - 1;
@@ -61,10 +61,10 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
     }
 
     function sendToPoolAndOwner(address who) internal {
-        tokenBUSD.transferFrom(who, addressPool, shareValuePool);
-        tokenBUSD.transferFrom(who, payeesOwner[0], shareValueOwnerBUSD[0]);
-        tokenBUSD.transferFrom(who, payeesOwner[1], shareValueOwnerBUSD[1]);
-        tokenBUSD.transferFrom(who, payeesOwner[2], shareValueOwnerBUSD[2]);
+        tokenUSDC.transferFrom(who, addressPool, shareValuePool);
+        tokenUSDC.transferFrom(who, payeesOwner[0], shareValueOwnerUSDC[0]);
+        tokenUSDC.transferFrom(who, payeesOwner[1], shareValueOwnerUSDC[1]);
+        tokenUSDC.transferFrom(who, payeesOwner[2], shareValueOwnerUSDC[2]);
     }
 
     function _checkUplineTokenId(uint256 _uplineTokenId) internal view returns(uint256) {
@@ -95,8 +95,8 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
         uint256 profit;
         for (uint256 i = 0; i < 12; i++) {
             profit = value * sharePercentage[i] / 100000;
-            receivedBUSD[uplineTokenId] += profit;
-            tokenBUSD.transferFrom(who, ownerOf(uplineTokenId), profit);
+            receivedUSDC[uplineTokenId] += profit;
+            tokenUSDC.transferFrom(who, ownerOf(uplineTokenId), profit);
             uplineTokenId = lineMatrix[uplineTokenId];
         }
 
@@ -117,11 +117,11 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
 
     function rangeInfo(address _who, uint256 _startIndex, uint256 _stopIndex) external view override returns (uint256[] memory, uint256[] memory) {
         uint256[] memory ownedTokenIds = rangeTokenIds(_who, _startIndex, _stopIndex);
-        uint256[] memory profitBUSDByTokenId = new uint256[](ownedTokenIds.length);
+        uint256[] memory profitUSDCByTokenId = new uint256[](ownedTokenIds.length);
         for (uint i = 0; i < ownedTokenIds.length; i++) {
-            profitBUSDByTokenId[i] = receivedBUSD[ownedTokenIds[i]];
+            profitUSDCByTokenId[i] = receivedUSDC[ownedTokenIds[i]];
         }
-        return (ownedTokenIds, profitBUSDByTokenId);
+        return (ownedTokenIds, profitUSDCByTokenId);
     }
 
     function allTokenIds(address _who) public view override returns (uint256[] memory) {
@@ -135,19 +135,19 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
 
     function allInfo(address _who) external view override returns (uint256[] memory, uint256[] memory) {
         uint256[] memory ownedTokenIds = allTokenIds(_who);
-        uint256[] memory profitBUSDByTokenId = new uint256[](ownedTokenIds.length);
+        uint256[] memory profitUSDCByTokenId = new uint256[](ownedTokenIds.length);
         for (uint i = 0; i < ownedTokenIds.length; i++) {
-            profitBUSDByTokenId[i] = receivedBUSD[ownedTokenIds[i]];
+            profitUSDCByTokenId[i] = receivedUSDC[ownedTokenIds[i]];
         }
-        return (ownedTokenIds, profitBUSDByTokenId);
+        return (ownedTokenIds, profitUSDCByTokenId);
     }
 
-    function totalReceivedBUSD(address _who) external view override returns (uint256) {
+    function totalReceivedUSDC(address _who) external view override returns (uint256) {
         uint256[] memory ownedTokenIds = allTokenIds(_who);
-        uint256 profitBUSD;
+        uint256 profitUSDC;
         for (uint i = 0; i < ownedTokenIds.length; i++) {
-            profitBUSD += receivedBUSD[ownedTokenIds[i]];
+            profitUSDC += receivedUSDC[ownedTokenIds[i]];
         }
-        return profitBUSD;
+        return profitUSDC;
     }
 }
