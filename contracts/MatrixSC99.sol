@@ -1,35 +1,34 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./interfaces/InterfaceMatrixSC99.sol";
 
-contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
+contract MatrixSC99 is ReentrancyGuard, ERC721Enumerable, InterfaceMatrixSC99 {
     IERC20 private tokenUSDC;
 
-    uint256 private constant valueUpline = 80e18;
-    uint256 private constant shareValuePool = 10e18;
-    address private constant addressPool = 0x75552A8202076e707F37cf6c5F0782BCA054a6F3;
+    uint256 private constant shareValuePool = 10e6;
+    address private constant addressPool = 0xd513C6a7c18e4C38104CA637b9Dfc77cD8780A84;
 
-    uint256[] private shareValueOwnerUSDC = [4e18, 2e18, 2e18];
-    uint256[] private sharePercentage = [
-        37500, // 37.5%
-        18750, // 18.75%
-        6250, // 6.25%
-        1250, // 1.25%
-        1250, // 1.25%
-        1875, // 1.875%
-        1875, // 1.875%
-        3125, // 3.125%
-        4375, // 4.375%
-        5000, // 5%
-        6250, // 6.25%
-        12500 // 12.5%
+    uint256[] private shareValueOwnerUSDC = [6e6, 2e6];
+    uint256[] private shareValue = [
+        35e6, // $35
+        10e6, // $10
+        5e6, // $5
+        3e6, // $3
+        2e6, // $2
+        2e6, // $2
+        2e6, // $2
+        2e6, // $2
+        2e6, // $2
+        2e6, // $2    
+        5e6, // $5
+        10e6 // $10
     ];
     address[] private payeesOwner = [
-        0x75552A8202076e707F37cf6c5F0782BCA054a6F3, // Owner 1
-        0xa8bf3aC4f567384F2f44B4E7C6d11b7664749f35, // Owner 2
-        0xa8bf3aC4f567384F2f44B4E7C6d11b7664749f35 // Owner 3
+        0x886341830b9D467EE4457dF8295e314C53EC70E8, // Owner 1
+        0xC9eAB6920731BCe5BfAa4d29A9558161B2197aA9 // Owner 2
     ];
     uint256[] private defaultUpline;
     string private defaultBaseURI;
@@ -39,6 +38,7 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
 
     event Registration(uint256 indexed newTokenId, uint256 indexed uplineTokenId, uint256 indexed timestamp);
 
+    // Address USDC = 0x7f5c764cbc14f9669b88837ca1490cca17c31607
     constructor(address _addressUSDC, string memory _defaultBaseURI, address _defaultUplineAddress) ERC721("Matrix SC99", "MSC99") {
         tokenUSDC = IERC20(_addressUSDC);
         defaultBaseURI = _defaultBaseURI;
@@ -64,13 +64,12 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
         tokenUSDC.transferFrom(who, addressPool, shareValuePool);
         tokenUSDC.transferFrom(who, payeesOwner[0], shareValueOwnerUSDC[0]);
         tokenUSDC.transferFrom(who, payeesOwner[1], shareValueOwnerUSDC[1]);
-        tokenUSDC.transferFrom(who, payeesOwner[2], shareValueOwnerUSDC[2]);
     }
 
     function _checkUplineTokenId(uint256 _uplineTokenId) internal view returns(uint256) {
         uint256 uplineTokenId = _uplineTokenId;
         if (uplineTokenId > 0) {
-            for (uint256 i = 0; i < defaultUpline.length; i++) {
+            for (uint256 i = defaultUpline.length; i > 0; i--) {
                 if (uplineTokenId == defaultUpline[i]) {
                     uplineTokenId = defaultUpline[0];
                     break;
@@ -83,21 +82,23 @@ contract MatrixSC99 is ERC721Enumerable, InterfaceMatrixSC99 {
         return uplineTokenId;
     }
 
-    function registration(uint256 _uplineTokenId, uint256 _newTokenId) external {
-        require(_exists(_uplineTokenId), "Upline tokenId not already minted");
+    function registration(uint256 _uplineTokenId, uint256 _newTokenId) external nonReentrant {
+        uint256 lengthDefaultUpline = defaultUpline.length;
+        require(_newTokenId > lengthDefaultUpline, "Set new tokenId");
+        require(_uplineTokenId == 0 || _exists(_uplineTokenId), "Upline tokenId not already minted");
         address who = _msgSender();
 
         sendToPoolAndOwner(who);
         uint256 uplineTokenId = _checkUplineTokenId(_uplineTokenId);
         lineMatrix[_newTokenId] = uplineTokenId;
 
-        uint256 value = valueUpline;
         uint256 profit;
-        for (uint256 i = 0; i < 12; i++) {
-            profit = value * sharePercentage[i] / 100000;
-            receivedUSDC[uplineTokenId] += profit;
-            tokenUSDC.transferFrom(who, ownerOf(uplineTokenId), profit);
-            uplineTokenId = lineMatrix[uplineTokenId];
+        uint256 currentUplineTokenId = uplineTokenId;
+        for (uint256 i = 0; i < lengthDefaultUpline; i++) {
+            profit = shareValue[i];
+            receivedUSDC[currentUplineTokenId] += profit;
+            tokenUSDC.transferFrom(who, ownerOf(currentUplineTokenId), profit);
+            currentUplineTokenId = lineMatrix[currentUplineTokenId];
         }
 
         _safeMint(who, _newTokenId);
