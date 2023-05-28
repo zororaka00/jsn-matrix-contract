@@ -82,22 +82,6 @@ contract MatrixV2 is UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgrade
             }
         }
     }
-
-    function _checkUpline(address _uplineAddress) internal view returns(address) {
-        address uplineAddress = _uplineAddress;
-        if (uplineAddress != address(0)) {
-            for (uint256 i = 0; i < defaultUplineAddress.length; i++) {
-                if (uplineAddress == defaultUplineAddress[i]) {
-                    uplineAddress = defaultUplineAddress[0];
-                    break;
-                }
-            }
-        } else {
-            uplineAddress = defaultUplineAddress[0];
-        }
-        
-        return uplineAddress;
-    }
     
     function registration(address _uplineAddress) external payable nonReentrant {
         address who = _msgSender();
@@ -128,5 +112,21 @@ contract MatrixV2 is UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgrade
         uint256 shareInvestOwner2 = _valueCoin - shareInvestOwner1;
         Address.sendValue(payable(payeesOwner[0]), shareInvestOwner1);
         Address.sendValue(payable(payeesOwner[1]), shareInvestOwner2);
+    }
+
+    function _checkUpline(address _uplineAddress) internal view returns(address) {
+        address uplineAddress = _uplineAddress;
+        if (uplineAddress != address(0)) {
+            for (uint256 i = 0; i < defaultUplineAddress.length; i++) {
+                if (uplineAddress == defaultUplineAddress[i]) {
+                    uplineAddress = defaultUplineAddress[0];
+                    break;
+                }
+            }
+        } else {
+            uplineAddress = defaultUplineAddress[0];
+        }
+        
+        return uplineAddress;
     }
 }
