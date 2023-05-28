@@ -3,8 +3,9 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
+
+import "@openzeppelin/hardhat-upgrades";
 
 dotenv.config();
 
