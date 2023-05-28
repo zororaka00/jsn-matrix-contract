@@ -20,19 +20,19 @@ describe("MatrixV2", () => {
     await instance_busd.deployed();
 
     instance_shareowner = [];
-    const ShareOwner = await ethers.getContractFactory("ShareOwner");
-    instance_shareowner[0] = await ShareOwner.deploy();
-    instance_shareowner[1] = await ShareOwner.deploy();
-    instance_shareowner[2] = await ShareOwner.deploy();
-    instance_shareowner[3] = await ShareOwner.deploy();
-    instance_shareowner[4] = await ShareOwner.deploy();
-    instance_shareowner[5] = await ShareOwner.deploy();
-    instance_shareowner[6] = await ShareOwner.deploy();
-    instance_shareowner[7] = await ShareOwner.deploy();
-    instance_shareowner[8] = await ShareOwner.deploy();
-    instance_shareowner[9] = await ShareOwner.deploy();
-    instance_shareowner[10] = await ShareOwner.deploy();
-    instance_shareowner[11] = await ShareOwner.deploy();
+    const ShareOwner = await ethers.getContractFactory("ShareOwnerV2");
+    instance_shareowner[0] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[1] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[2] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[3] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[4] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[5] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[6] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[7] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[8] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[9] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[10] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
+    instance_shareowner[11] = await upgrades.deployProxy((ShareOwner), [addressOwner], { kind: 'uups' });
 
     address_shareowner = await instance_shareowner.map((d: any) => d.address);
     instance_matrix = await upgrades.deployProxy((await ethers.getContractFactory("MatrixV2")),
