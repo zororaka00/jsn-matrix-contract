@@ -50,17 +50,11 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    optimism: {
-      url: process.env.OPTIMISM_MAINNET_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
   },
   etherscan: {
     apiKey: {
       polygonMumbai: process.env.POLYGON_API_KEY as string,
       polygon: process.env.POLYGON_API_KEY as string,
-      optimisticEthereum: process.env.ETHERSCAN_API_KEY as string,
     },
   },
   gasReporter: {

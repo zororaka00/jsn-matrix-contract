@@ -1,0 +1,164 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x09FF116Dc884875BF6DC2a9A61120b45B92068bB",
+      "txHash": "0x53ef594ce5df5f4ca0cf7f641ed13f87819bd803a1b80b0391a482a4bd228b64",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "4b00e261453f2815dab04ba856687533d0017b33e9f6f9904c941bbe7ff061bb": {
+      "address": "0x4365d0E84B9D29776Dbaa71803581d89E1D77C13",
+      "txHash": "0x37cab57ab42ad1114cdc0a5b739a2e6f0bed44d2c88f020c259a3370c3c15de8",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\ERC1967\\ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "swapRouter",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_contract(ISwapRouter)1805",
+            "contract": "SwapJSNV2",
+            "src": "contracts\\SwapJSNV2.sol:12"
+          },
+          {
+            "label": "WMATIC",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_contract(IWMATIC)2446",
+            "contract": "SwapJSNV2",
+            "src": "contracts\\SwapJSNV2.sol:13"
+          },
+          {
+            "label": "versionCode",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_uint256",
+            "contract": "SwapJSNV2",
+            "src": "contracts\\SwapJSNV2.sol:14"
+          },
+          {
+            "label": "feeSwap",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_uint256",
+            "contract": "SwapJSNV2",
+            "src": "contracts\\SwapJSNV2.sol:16"
+          },
+          {
+            "label": "shareOwner",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_uint256",
+            "contract": "SwapJSNV2",
+            "src": "contracts\\SwapJSNV2.sol:17"
+          },
+          {
+            "label": "payeesOwner",
+            "offset": 0,
+            "slot": "206",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "SwapJSNV2",
+            "src": "contracts\\SwapJSNV2.sol:18"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(ISwapRouter)1805": {
+            "label": "contract ISwapRouter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWMATIC)2446": {
+            "label": "contract IWMATIC",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}
