@@ -13,7 +13,7 @@ contract Matrix is Context, ReentrancyGuard {
     uint256 public constant maxInvestmentProfit = 75000 ether; // 75,000 MATIC
     uint256 private constant sharePercentageOwner = 75; // 75%
     address[] private payeesOwner = [
-        0x75552A8202076e707F37cf6c5F0782BCA054a6F3, // Owner 1
+        0x0fFee57EAA1026857E381BC51B6832735006fc6a, // Owner 1
         0xa8bf3aC4f567384F2f44B4E7C6d11b7664749f35 // Owner 2
     ];
 
